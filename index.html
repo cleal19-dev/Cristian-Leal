@@ -374,20 +374,20 @@
       { name: "Inicio", type: "start", effect: () => showMessage("¡Bienvenido! Recibes $200,000 de mesada.", () => { players[currentPlayer].money += 200000; updateUI(); }) },
       { name: "Gastos Fijos", type: "expense", effect: () => handleExpense(150000, "Pago de arriendo y transporte.") },
       { name: "Gastos Hormiga", type: "expense", effect: () => handleExpense(30000, "Compraste un café y unas papas. ¿Realmente lo necesitabas?") },
-      { name: "¡Ahorra primero!", type: "save", effect: () => { const save = Math.floor(players[currentPlayer].money * 0.1); players[currentPlayer].money -= save; showMessage(`¡Automáticamente ahorraste $${save.toLocaleString()}!`, null); updateUI(); } },
+      { name: "¡Ahorra primero!", type: "save", effect: () => { const save = Math.floor(players[currentPlayer].money * 0.1); players[currentPlayer].money -= save; showMessage(`¡Automáticamente...`, null); updateUI(); } },
       { name: "Sorpresas", type: "surprise", effect: () => handleExpense(80000, "¡Imprevisto! Tu celular se dañó. Reparación: $80,000.") },
       { name: "Inversión: CDT", type: "invest", effect: () => { players[currentPlayer].money += 50000; showMessage("¡Tu CDT generó $50,000 en intereses!", null); updateUI(); } },
-      { name: "Inversión: Bolsa", type: "invest", effect: () => { const gain = Math.random() > 0.5 ? 120000 : -60000; players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Ganaste $${gain.toLocaleString()} en la bolsa!` : `Perdiste $${Math.abs(gain).toLocaleString()} en la bolsa.`, null); updateUI(); } },
-      { name: "Inversión: Cripto", type: "invest", effect: () => { const gain = Math.random() > 0.7 ? 200000 : (Math.random() > 0.3 ? -100000 : -200000); players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Cripto te dio $${gain.toLocaleString()}!` : `Las criptomonedas te costaron $${Math.abs(gain).toLocaleString()}.`, null); updateUI(); } },
-      { name: "Reto Emprendedor", type: "business", effect: () => { const profit = Math.random() > 0.6 ? 200000 : -50000; players[currentPlayer].money += profit; showMessage(profit > 0 ? "¡Tu negocio fue un éxito! Ganaste $200,000." : "Tu negocio tuvo pérdidas: -$50,000.", null); updateUI(); } },
-      { name: "Préstamo", type: "loan", effect: () => { players[currentPlayer].money += 300000; players[currentPlayer].creditScore -= 10; showMessage("Pediste un préstamo de $300,000. Tu puntaje crediticio bajó.", null); updateUI(); } },
-      { name: "Paga Cuota", type: "payment", effect: () => { if (players[currentPlayer].money >= 70000) { players[currentPlayer].money -= 70000; players[currentPlayer].creditScore += 5; showMessage("¡Pagaste tu cuota! Tu puntaje crediticio subió.", null); } else { players[currentPlayer].creditScore -= 20; showMessage("¡No tenías dinero para pagar! Tu puntaje crediticio bajó mucho.", null); } updateUI(); } },
+      { name: "Inversión: Bolsa", type: "invest", effect: () => { const gain = Math.random() > 0.5 ? 120000 : -60000; players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Ganaste $${gain}` : `Perdiste $${Math.abs(gain)}`, null); updateUI(); } },
+      { name: "Inversión: Cripto", type: "invest", effect: () => { const gain = Math.random() > 0.7 ? 200000 : (Math.random() > 0.3 ? -100000 : -200000); players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Ganaste $${gain}` : `Perdiste $${Math.abs(gain)}`, null); updateUI(); } },
+      { name: "Reto Emprendedor", type: "business", effect: () => { const profit = Math.random() > 0.6 ? 200000 : -50000; players[currentPlayer].money += profit; showMessage(profit > 0 ? "¡Tu negocio fue un éxito! Ganaste $200,000" : "Tu emprendimiento falló y perdiste $50,000", null); updateUI(); } },
+      { name: "Préstamo", type: "loan", effect: () => { players[currentPlayer].money += 300000; players[currentPlayer].creditScore -= 10; showMessage("Pediste un préstamo de $300,000. Tu puntaje bajó.", null); updateUI(); } },
+      { name: "Paga Cuota", type: "payment", effect: () => { if (players[currentPlayer].money >= 70000) { players[currentPlayer].money -= 70000; players[currentPlayer].creditScore += 5; showMessage("Pagaste la cuota. Tu crédito mejoró.", null); updateUI(); } else { showMessage("No tienes suficiente para pagar la cuota.", null); } } },
       { name: "Buen Pagador", type: "good", effect: () => { players[currentPlayer].creditScore += 10; showMessage("¡Eres un buen pagador! Tu puntaje crediticio subió.", null); updateUI(); } },
       { name: "Consejo Experto", type: "advice", effect: () => showMessage("“El que paga sus deudas a tiempo, construye su futuro.” – Emprendedor Colombiano", null) },
-      { name: "Meta: Viaje", type: "goal", effect: () => { if (players[currentPlayer].money >= 800000) { players[currentPlayer].money -= 800000; showMessage("¡Lograste tu sueño de viajar! Te quedan $800,000 menos.", null); document.getElementById("dream1").style.width = "100%"; } else { showMessage("¡No tienes suficiente dinero para este sueño! Sigue ahorrando.", null); } updateUI(); } },
-      { name: "Meta: Computador", type: "goal", effect: () => { if (players[currentPlayer].money >= 1200000) { players[currentPlayer].money -= 1200000; showMessage("¡Compraste tu computador! Te quedan $1,200,000 menos.", null); document.getElementById("dream2").style.width = "100%"; } else { showMessage("¡Necesitas $1,200,000 para este sueño! Sigue ahorrando.", null); } updateUI(); } },
-      { name: "Meta: Carro", type: "goal", effect: () => { if (players[currentPlayer].money >= 5000000) { players[currentPlayer].money -= 5000000; showMessage("¡Compraste tu carro! Te quedan $5,000,000 menos.", null); document.getElementById("dream3").style.width = "100%"; } else { showMessage("¡Necesitas $5,000,000 para este sueño! Sigue ahorrando.", null); } updateUI(); } },
-      { name: "Meta: Educación", type: "goal", effect: () => { if (players[currentPlayer].money >= 2000000) { players[currentPlayer].money -= 2000000; showMessage("¡Invertiste en tu educación! Te quedan $2,000,000 menos.", null); } else { showMessage("¡Necesitas $2,000,000 para esta meta! Sigue ahorrando.", null); } updateUI(); } }
+      { name: "Meta: Viaje", type: "goal", effect: () => { if (players[currentPlayer].money >= 800000) { players[currentPlayer].money -= 800000; showMessage("¡Lograste tu sueño de viajar! Te quedarán nuevos recuerdos.", null); updateUI(); } else { showMessage("Aún te falta para el viaje. Ahorrar es la clave.", null); } } },
+      { name: "Meta: Computador", type: "goal", effect: () => { if (players[currentPlayer].money >= 1200000) { players[currentPlayer].money -= 1200000; showMessage("¡Compraste tu computador! Te queda menos deuda.", null); updateUI(); } else { showMessage("Aún te falta para el computador.", null); } } },
+      { name: "Meta: Carro", type: "goal", effect: () => { if (players[currentPlayer].money >= 5000000) { players[currentPlayer].money -= 5000000; showMessage("¡Compraste tu carro! Te quedan $0 extra.", null); updateUI(); } else { showMessage("El carro es caro, sigue ahorrando.", null); } } },
+      { name: "Meta: Educación", type: "goal", effect: () => { if (players[currentPlayer].money >= 2000000) { players[currentPlayer].money -= 2000000; showMessage("¡Invertiste en tu educación! Un gran paso.", null); updateUI(); } else { showMessage("Sigue invirtiendo en tu futuro.", null); } } }
     ];
 
     // Utilities: deshabilita/rehabilita controles mientras se procesa una acción
@@ -600,6 +600,6 @@
     window.rollDice = rollDice;
     window.toggleAI = toggleAI;
     window.saveMoney = saveMoney;
-  <\/script>
+  </script>
 </body>
 </html>
