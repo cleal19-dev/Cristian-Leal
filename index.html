@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PAYBACK - Finanzas sin Enredos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: white;
+      min-height: 100vh;
+      padding: 10px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .background-title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 8rem;
+      font-weight: bold;
+      color: rgba(255, 204, 0, 0.1);
+      z-index: -1;
+      pointer-events: none;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      user-select: none;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #ffcc00;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    .players {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .player-card {
+      background: #222;
+      border: 2px solid #555;
+      border-radius: 15px;
+      padding: 15px;
+      width: 280px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .player-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+    .player-stats {
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .board-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+    }
+    .board {
+      width: 500px;
+      height: 500px;
+      border: 4px solid #ffcc00;
+      border-radius: 20px;
+      position: relative;
+      background: #111;
+      box-shadow: inset 0 0 20px rgba(255,204,0,0.2);
+    }
+    .corner {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background: #333;
+      border: 2px solid #ffcc00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 5px;
+    }
+    .corner.top-left { top: 0; left: 0; border-radius: 20px 0 0 0; }
+    .corner.top-right { top: 0; right: 0; border-radius: 0 20px 0 0; }
+    .corner.bottom-left { bottom: 0; left: 0; border-radius: 0 0 0 20px; }
+    .corner.bottom-right { bottom: 0; right: 0; border-radius: 0 0 20px 0; }
+
+    .side {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 10px;
+    }
+    .side.top { top: 80px; left: 80px; right: 80px; flex-direction: row; justify-content: space-around; }
+    .side.right { top: 80px; right: 0; bottom: 80px; flex-direction: column-reverse; justify-content: space-around; }
+    .side.bottom { bottom: 80px; left: 80px; right: 80px; flex-direction: row-reverse; justify-content: space-around; }
+    .side.left { top: 80px; left: 0; bottom: 80px; flex-direction: column; justify-content: space-around; }
+
+    .cell {
+      width: 70px;
+      height: 70px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .cell:hover {
+      background: #3a3a3a;
+      transform: scale(1.05);
+      z-index: 10;
+    }
+    .cell.active {
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      box-shadow: 0 0 15px #ffcc00;
+    }
+    .token {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 20;
+      border: 2px solid #000;
+    }
+    .token.p1 { background: #ff5555; }
+    .token.p2 { background: #55ff55; }
+
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+    button {
+      background: #ffcc00;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    button:hover {
+      background: #ffd740;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      background: #2a2a2a;
+      border-left: 4px solid #ffcc00;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+    .message.show {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .dream-board {
+      background: #222;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .dream-item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #333;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dream-progress {
+      width: 100px;
+      height: 10px;
+      background: #444;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-left: 10px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #ffcc00;
+      width: 0%;
+      transition: width 0.5s;
+    }
+    .dice {
+      width: 60px;
+      height: 60px;
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0 auto 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="background-title">PAYBACK</div>
+  <div class="container">
+    <h1>💰 PAYBACK: Finanzas sin Enredos</h1>
+    <div class="subtitle">Juego de simulación económica para estudiantes de 10° y 11°</div>
+
+    <div class="players">
+      <div class="player-card">
+        <div class="player-name">Jugador 1</div>
+        <div class="player-stats">
+          <div class="stat"><span>Dinero:</span> <span id="money-p1">$1,000,000</span></div>
+          <div class="stat"><span>Puntaje Crédito:</span> <span id="credit-p1">650</span></div>
+          <div class="stat"><span>Posición:</span> <span id="pos-p1">Inicio</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="player-name">Jugador 2 / IA</div>
+        <div class="player-stats">
+          <div class="stat"><span>Dinero:</span> <span id="money-p2">$1,000,000</span></div>
+          <div class="stat"><span>Puntaje Crédito:</span> <span id="credit-p2">650</span></div>
+          <div class="stat"><span>Posición:</span> <span id="pos-p2">Inicio</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-container">
+      <div class="board">
+        <!-- Esquinas -->
+        <div class="corner top-left">🚀 Inicio</div>
+        <div class="corner top-right">🎯 Sueño Logrado</div>
+        <div class="corner bottom-right">📉 Crédito</div>
+        <div class="corner bottom-left">📈 Inversión</div>
+
+        <!-- Lados -->
+        <div class="side top">
+          <div class="cell" data-index="1" onclick="landOn(1, 0)">Gastos Fijos</div>
+          <div class="cell" data-index="2" onclick="landOn(2, 0)">Gastos Hormiga</div>
+          <div class="cell" data-index="3" onclick="landOn(3, 0)">¡Ahorra!</div>
+          <div class="cell" data-index="4" onclick="landOn(4, 0)">Sorpresa</div>
+        </div>
+        <div class="side right">
+          <div class="cell" data-index="5" onclick="landOn(5, 0)">Inversión CDT</div>
+          <div class="cell" data-index="6" onclick="landOn(6, 0)">Bolsa</div>
+          <div class="cell" data-index="7" onclick="landOn(7, 0)">Cripto</div>
+          <div class="cell" data-index="8" onclick="landOn(8, 0)">Reto Emprend.</div>
+        </div>
+        <div class="side bottom">
+          <div class="cell" data-index="9" onclick="landOn(9, 0)">Préstamo</div>
+          <div class="cell" data-index="10" onclick="landOn(10, 0)">Paga Cuota</div>
+          <div class="cell" data-index="11" onclick="landOn(11, 0)">Buen Pagador</div>
+          <div class="cell" data-index="12" onclick="landOn(12, 0)">Consejo Experto</div>
+        </div>
+        <div class="side left">
+          <div class="cell" data-index="13" onclick="landOn(13, 0)">Meta Viaje</div>
+          <div class="cell" data-index="14" onclick="landOn(14, 0)">Meta Computador</div>
+          <div class="cell" data-index="15" onclick="landOn(15, 0)">Meta Carro</div>
+          <div class="cell" data-index="16" onclick="landOn(16, 0)">Meta Educación</div>
+        </div>
+
+        <!-- Tokens -->
+        <div class="token p1" id="token-p1"></div>
+        <div class="token p2" id="token-p2"></div>
+      </div>
+    </div>
+
+    <div class="dice" id="dice">🎲</div>
+
+    <div class="controls">
+      <button onclick="rollDice()">🎲 Tirar Dado</button>
+      <button onclick="saveMoney()">🏦 Ahorrar 10%</button>
+      <button onclick="toggleAI()">🤖 Jugar vs IA</button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="dream-board">
+      <h3>📌 Tablero de Sueños</h3>
+      <div class="dream-item">
+        <span>Viaje a Cartagena ($800,000)</span>
+        <div class="dream-progress"><div class="progress-fill" id="dream1"></div></div>
+      </div>
+      <div class="dream-item">
+        <span>Computador ($1,200,000)</span>
+        <div class="dream-progress"><div class="progress-fill" id="dream2"></div></div>
+      </div>
+      <div class="dream-item">
+        <span>Carro ($5,000,000)</span>
+        <div class="dream-progress"><div class="progress-fill" id="dream3"></div></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Proyecto Educativo - Fundación Universitaria del Areandina<br>
+      Felipe García, Nelson Molina, Cristian Leal | 2025
+    </div>
+  </div>
+
+  <script>
+    // Estado del juego
+    let currentPlayer = 0; // 0 = Jugador 1, 1 = Jugador 2/IA
+    let players = [
+      { name: "Jugador 1", money: 1000000, creditScore: 650, position: 0 },
+      { name: "Jugador 2 / IA", money: 1000000, creditScore: 650, position: 0 }
+    ];
+    let isAIActive = false;
+    let isProcessing = false;
+
+    // Casillas del tablero (17 casillas: 0 a 16)
+    const board = [
+      { name: "Inicio", type: "start", effect: () => showMessage("¡Bienvenido! Recibes $200,000 de mesada.", () => { players[currentPlayer].money += 200000; updateUI(); }) },
+      { name: "Gastos Fijos", type: "expense", effect: () => handleExpense(150000, "Pago de arriendo y transporte.") },
+      { name: "Gastos Hormiga", type: "expense", effect: () => handleExpense(30000, "Compraste un café y unas papas. ¿Realmente lo necesitabas?") },
+      { name: "¡Ahorra primero!", type: "save", effect: () => { const save = Math.floor(players[currentPlayer].money * 0.1); players[currentPlayer].money -= save; showMessage(`¡Automáticamente ahorraste $${save.toLocaleString()}!`, null); updateUI(); } },
+      { name: "Sorpresas", type: "surprise", effect: () => handleExpense(80000, "¡Imprevisto! Tu celular se dañó. Reparación: $80,000.") },
+      { name: "Inversión: CDT", type: "invest", effect: () => { players[currentPlayer].money += 50000; showMessage("¡Tu CDT generó $50,000 en intereses!", null); updateUI(); } },
+      { name: "Inversión: Bolsa", type: "invest", effect: () => { const gain = Math.random() > 0.5 ? 120000 : -60000; players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Ganaste $${gain.toLocaleString()} en la bolsa!` : `Perdiste $${Math.abs(gain).toLocaleString()} en la bolsa.`, null); updateUI(); } },
+      { name: "Inversión: Cripto", type: "invest", effect: () => { const gain = Math.random() > 0.7 ? 200000 : (Math.random() > 0.3 ? -100000 : -200000); players[currentPlayer].money += gain; showMessage(gain > 0 ? `¡Cripto te dio $${gain.toLocaleString()}!` : `Las criptomonedas te costaron $${Math.abs(gain).toLocaleString()}.`, null); updateUI(); } },
+      { name: "Reto Emprendedor", type: "business", effect: () => { const profit = Math.random() > 0.6 ? 200000 : -50000; players[currentPlayer].money += profit; showMessage(profit > 0 ? "¡Tu negocio fue un éxito! Ganaste $200,000." : "Tu negocio tuvo pérdidas: -$50,000.", null); updateUI(); } },
+      { name: "Préstamo", type: "loan", effect: () => { players[currentPlayer].money += 300000; players[currentPlayer].creditScore -= 10; showMessage("Pediste un préstamo de $300,000. Tu puntaje crediticio bajó.", null); updateUI(); } },
+      { name: "Paga Cuota", type: "payment", effect: () => { if (players[currentPlayer].money >= 70000) { players[currentPlayer].money -= 70000; players[currentPlayer].creditScore += 5; showMessage("¡Pagaste tu cuota! Tu puntaje crediticio subió.", null); } else { players[currentPlayer].creditScore -= 20; showMessage("¡No tenías dinero para pagar! Tu puntaje crediticio bajó mucho.", null); } updateUI(); } },
+      { name: "Buen Pagador", type: "good", effect: () => { players[currentPlayer].creditScore += 10; showMessage("¡Eres un buen pagador! Tu puntaje crediticio subió.", null); updateUI(); } },
+      { name: "Consejo Experto", type: "advice", effect: () => showMessage("“El que paga sus deudas a tiempo, construye su futuro.” – Emprendedor Colombiano", null) },
+      { name: "Meta: Viaje", type: "goal", effect: () => { if (players[currentPlayer].money >= 800000) { players[currentPlayer].money -= 800000; showMessage("¡Lograste tu sueño de viajar! Te quedan $800,000 menos.", null); document.getElementById("dream1").style.width = "100%"; } else { showMessage("¡No tienes suficiente dinero para este sueño! Sigue ahorrando.", null); } updateUI(); } },
+      { name: "Meta: Computador", type: "goal", effect: () => { if (players[currentPlayer].money >= 1200000) { players[currentPlayer].money -= 1200000; showMessage("¡Compraste tu computador! Te quedan $1,200,000 menos.", null); document.getElementById("dream2").style.width = "100%"; } else { showMessage("¡Necesitas $1,200,000 para este sueño! Sigue ahorrando.", null); } updateUI(); } },
+      { name: "Meta: Carro", type: "goal", effect: () => { if (players[currentPlayer].money >= 5000000) { players[currentPlayer].money -= 5000000; showMessage("¡Compraste tu carro! Te quedan $5,000,000 menos.", null); document.getElementById("dream3").style.width = "100%"; } else { showMessage("¡Necesitas $5,000,000 para este sueño! Sigue ahorrando.", null); } updateUI(); } },
+      { name: "Meta: Educación", type: "goal", effect: () => { if (players[currentPlayer].money >= 2000000) { players[currentPlayer].money -= 2000000; showMessage("¡Invertiste en tu educación! Te quedan $2,000,000 menos.", null); } else { showMessage("¡Necesitas $2,000,000 para esta meta! Sigue ahorrando.", null); } updateUI(); } }
+    ];
+
+    // Utilities: deshabilita/rehabilita controles mientras se procesa una acción
+    function setControlsDisabled(disabled) {
+      isProcessing = disabled;
+      document.querySelectorAll(".controls button").forEach(btn => btn.disabled = disabled);
+    }
+
+    // Posiciona tokens relativo al .board usando getBoundingClientRect
+    function placeTokenOnCell(tokenEl, cellEl) {
+      const boardEl = document.querySelector(".board");
+      if (!cellEl || !boardEl) {
+        tokenEl.style.display = "none";
+        return;
+      }
+      const boardRect = boardEl.getBoundingClientRect();
+      const cellRect = cellEl.getBoundingClientRect();
+      // posición relativa dentro del board
+      const left = cellRect.left - boardRect.left + 5;
+      const top = cellRect.top - boardRect.top + 5;
+      tokenEl.style.position = "absolute";
+      tokenEl.style.left = `${left}px`;
+      tokenEl.style.top = `${top}px`;
+      tokenEl.style.display = "block";
+    }
+
+    function updateUI() {
+      // datos
+      document.getElementById("money-p1").textContent = `$${players[0].money.toLocaleString()}`;
+      document.getElementById("credit-p1").textContent = players[0].creditScore;
+      document.getElementById("pos-p1").textContent = board[players[0].position].name;
+
+      document.getElementById("money-p2").textContent = `$${players[1].money.toLocaleString()}`;
+      document.getElementById("credit-p2").textContent = players[1].creditScore;
+      document.getElementById("pos-p2").textContent = board[players[1].position].name;
+
+      // tokens
+      const token1 = document.getElementById("token-p1");
+      const token2 = document.getElementById("token-p2");
+      // limpiar clases active
+      document.querySelectorAll(".cell").forEach(cell => cell.classList.remove("active"));
+
+      if (players[0].position > 0) {
+        const cell1 = document.querySelector(`.cell[data-index="${players[0].position}"]`);
+        if (cell1) {
+          cell1.classList.add("active");
+          placeTokenOnCell(token1, cell1);
+        } else {
+          // fallback: colocarlo en la esquina inicio
+          const start = document.querySelector(".corner.top-left");
+          placeTokenOnCell(token1, start);
+        }
+      } else {
+        const start = document.querySelector(".corner.top-left");
+        placeTokenOnCell(token1, start);
+      }
+
+      if (players[1].position > 0) {
+        const cell2 = document.querySelector(`.cell[data-index="${players[1].position}"]`);
+        if (cell2) {
+          cell2.classList.add("active");
+          placeTokenOnCell(token2, cell2);
+        } else {
+          const start = document.querySelector(".corner.top-left");
+          placeTokenOnCell(token2, start);
+        }
+      } else {
+        const start = document.querySelector(".corner.top-left");
+        placeTokenOnCell(token2, start);
+      }
+
+      // guardar estado en localStorage
+      try {
+        localStorage.setItem("payback_state", JSON.stringify({ players, currentPlayer, isAIActive }));
+      } catch (e) {
+        // no bloquear si falla el almacenamiento
+        console.warn("No se pudo guardar el estado:", e);
+      }
+    }
+
+    // Función para manejar click directo en casillas
+    function landOn(index, playerIndex = currentPlayer) {
+      if (isProcessing) return;
+      setControlsDisabled(true);
+
+      // Forzamos el turno al jugador indicado
+      currentPlayer = playerIndex;
+      players[currentPlayer].position = index;
+      updateUI();
+
+      // Ejecutar efecto (lo hacemos con pequeño delay para animación)
+      setTimeout(() => {
+        board[players[currentPlayer].position].effect();
+        // después de ejecutar efecto, cambiamos turno
+        currentPlayer = 1 - currentPlayer;
+        setControlsDisabled(false);
+      }, 500);
+    }
+
+    function rollDice() {
+      if (isProcessing) return;
+      setControlsDisabled(true);
+
+      const diceValue = Math.floor(Math.random() * 6) + 1; // 1 a 6
+      // mostramos emoji + número
+      document.getElementById("dice").textContent = `🎲 ${diceValue}`;
+      showMessage(`Jugador ${currentPlayer + 1} tiró un ${diceValue}`, null);
+
+      // Mover jugador con un pequeño retardo para que se vea la animación del dado
+      setTimeout(() => {
+        players[currentPlayer].position = (players[currentPlayer].position + diceValue) % board.length;
+        updateUI();
+
+        // Ejecutar efecto de la casilla tras otra pausa
+        setTimeout(() => {
+          board[players[currentPlayer].position].effect();
+
+          // Turnos: si IA está activa y ahora es el turno de la IA, ejecutar aiPlay
+          if (isAIActive && currentPlayer === 1) {
+            setTimeout(() => aiPlay(), 800);
+          } else {
+            currentPlayer = 1 - currentPlayer;
+          }
+          setControlsDisabled(false);
+        }, 700);
+      }, 400);
+    }
+
+    function aiPlay() {
+      if (isProcessing) return;
+      setControlsDisabled(true);
+      // simple: tirar dado y aplicar
+      const diceValue = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("dice").textContent = `🤖 ${diceValue}`;
+      showMessage(`IA tiró un ${diceValue}`, null);
+
+      setTimeout(() => {
+        players[1].position = (players[1].position + diceValue) % board.length;
+        updateUI();
+
+        setTimeout(() => {
+          board[players[1].position].effect();
+          currentPlayer = 0; // vuelve al humano
+          setControlsDisabled(false);
+        }, 700);
+      }, 600);
+    }
+
+    function toggleAI() {
+      isAIActive = !isAIActive;
+      const btn = document.querySelector('button[onclick="toggleAI()"]');
+      btn.textContent = isAIActive ? "👤 Jugar 2 Jugadores" : "🤖 Jugar vs IA";
+      showMessage(isAIActive ? "Ahora juegas contra la IA." : "Ahora juegas con otro jugador.", null);
+      updateUI();
+    }
+
+    function saveMoney() {
+      if (isProcessing) return;
+      const save = Math.floor(players[currentPlayer].money * 0.1);
+      if (save > 0) {
+        players[currentPlayer].money -= save;
+        showMessage(`Ahorraste $${save.toLocaleString()} manualmente. ¡Buen hábito!`, null);
+        updateUI();
+      }
+    }
+
+    function handleExpense(amount, msg) {
+      players[currentPlayer].money -= amount;
+      showMessage(msg + ` -$${amount.toLocaleString()}`, null);
+      if (players[currentPlayer].money < 0) {
+        setTimeout(() => {
+          alert("¡Quedaste en números rojos! Recuerda: presupuesto > gastos.");
+          players[currentPlayer].money = 0;
+          updateUI();
+        }, 500);
+      } else {
+        updateUI();
+      }
+    }
+
+    function showMessage(text, callback) {
+      const msgEl = document.getElementById("message");
+      msgEl.innerText = text;
+      msgEl.classList.add("show");
+      setTimeout(() => {
+        msgEl.classList.remove("show");
+        if (callback) callback();
+      }, 2500);
+    }
+
+    // Cargar estado guardado si existe
+    (function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("payback_state"));
+        if (saved && saved.players) {
+          players = saved.players;
+          currentPlayer = saved.currentPlayer || 0;
+          isAIActive = !!saved.isAIActive;
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+
+    // Inicializar
+    updateUI();
+
+    // Exponer landOn globalmente (ya que HTML usa onclick="landOn(...)")
+    window.landOn = landOn;
+    window.rollDice = rollDice;
+    window.toggleAI = toggleAI;
+    window.saveMoney = saveMoney;
+  <\/script>
+</body>
+</html>
